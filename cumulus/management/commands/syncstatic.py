@@ -107,7 +107,7 @@ class Command(BaseCommand):
             if os.path.isdir(file_path):
                 continue # Don't try to upload directories
 
-            object_name = self.STATIC_URL + file_path.split(self.DIRECTORY)[1]
+            object_name = file_path.split(self.DIRECTORY)[1]
             self.local_object_names.append(object_name)
 
             try:
