@@ -1,6 +1,7 @@
 import datetime
 import optparse
 import os
+import ssl
 
 import cloudfiles
 
@@ -112,7 +113,7 @@ class Command(BaseCommand):
             try:
                 cloud_obj = self.container.get_object(object_name)
             except cloudfiles.errors.NoSuchObject:
-                cloud_obj = self.container.create_object(object_name)
+                cloud_obj = self.create_object(object_name)
                 self.create_count += 1
 
             cloud_datetime = (cloud_obj.last_modified and
@@ -134,6 +135,12 @@ class Command(BaseCommand):
             self.upload_count += 1
             if self.verbosity > 1:
                 self.stdout.write("Uploaded", cloud_obj.name)
+
+    def create_object(self, object_name):
+        try:
+            return self.container.create_object(object_name)
+        except ssl.SSLError:
+            return self.create_object(object_name)
 
     def delete_files(self):
         # remove any objects on the cloud that don't exist locally
