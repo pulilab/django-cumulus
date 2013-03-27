@@ -23,6 +23,6 @@ def static_cdn_url(request):
     as static URL in templates.
     """
     cdn_url, ssl_url = _get_container_urls(CloudFilesStaticStorage())
-    static_url = settings.STATIC_URL
+    static_url = '/' #settings.STATIC_URL
 
     return {'STATIC_URL': cdn_url+static_url, 'STATIC_SSL_URL': ssl_url+static_url, 'LOCAL_STATIC_URL': static_url}
