@@ -113,7 +113,7 @@ class Command(BaseCommand):
             try:
                 cloud_obj = self.container.get_object(object_name)
             except cloudfiles.errors.NoSuchObject:
-                cloud_obj = self.create_object(object_name)
+                cloud_obj = self.container.create_object(object_name)
                 self.create_count += 1
 
             cloud_datetime = (cloud_obj.last_modified and
@@ -130,17 +130,17 @@ class Command(BaseCommand):
                 continue
 
             if not self.test_run:
-                cloud_obj.load_from_filename(file_path)
-                sync_headers(cloud_obj)
+                self.load_from_filename(cloud_obj, file_path)
             self.upload_count += 1
             if self.verbosity > 1:
                 self.stdout.write("Uploaded", cloud_obj.name)
 
-    def create_object(self, object_name):
+    def load_from_filename(self, cloud_obj, file_path):
         try:
-            return self.container.create_object(object_name)
+            cloud_obj.load_from_filename(file_path)
+            sync_headers(cloud_obj)
         except ssl.SSLError:
-            return self.create_object(object_name)
+            return self.load_from_filename(cloud_obj, file_path)
 
     def delete_files(self):
         # remove any objects on the cloud that don't exist locally
