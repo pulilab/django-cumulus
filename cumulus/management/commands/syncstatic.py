@@ -75,9 +75,9 @@ class Command(BaseCommand):
         # if -w option is provided, wipe out the contents of the container
         if self.wipe:
             if self.test_run:
-                print "Wipe would delete %d objects." % self.container.object_count
+                self.stdout.write("Wipe would delete %d objects." % self.container.object_count)
             else:
-                print "Deleting %d objects..." % self.container.object_count
+                self.stdout.write("Deleting %d objects..." % self.container.object_count)
                 for cloud_obj in self.container.get_objects():
                     self.container.delete_object(cloud_obj.name)
 
@@ -91,9 +91,10 @@ class Command(BaseCommand):
         self.update_count = self.upload_count - self.create_count
         print
         if self.test_run:
-            print "Test run complete with the following results:"
-        print "Skipped %d. Created %d. Updated %d. Deleted %d." % (
+            self.stdout.write("Test run complete with the following results:")
+        self.stdout.write("Skipped %d. Created %d. Updated %d. Deleted %d." % (
             self.skip_count, self.create_count, self.update_count, self.delete_count)
+            )
 
     def upload_files(self, arg, dirname, names):
         # upload or skip items
@@ -124,7 +125,7 @@ class Command(BaseCommand):
             if cloud_datetime and local_datetime < cloud_datetime:
                 self.skip_count += 1
                 if self.verbosity > 1:
-                    print "Skipped %s: not modified." % object_name
+                    self.stdout.write("Skipped %s: not modified." % object_name)
                 continue
 
             if not self.test_run:
@@ -132,7 +133,7 @@ class Command(BaseCommand):
                 sync_headers(cloud_obj)
             self.upload_count += 1
             if self.verbosity > 1:
-                print "Uploaded", cloud_obj.name
+                self.stdout.write("Uploaded", cloud_obj.name)
 
     def delete_files(self):
         # remove any objects on the cloud that don't exist locally
@@ -140,6 +141,6 @@ class Command(BaseCommand):
             if cloud_name not in self.local_object_names:
                 self.delete_count += 1
                 if self.verbosity > 1:
-                    print "Deleted %s" % cloud_name
+                    self.stdout.write("Deleted %s" % cloud_name)
                 if not self.test_run:
                     self.container.delete_object(cloud_name)
